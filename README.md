@@ -13,9 +13,10 @@ TODO:s
   - @FUTURE: if we desire e2e (uncertain because current deploy method is unknown), use playwright
 - [ ] TDD/prototype a non-physics based "roller": d6 + boost die vs d6 + boost die
   - [x] Set number of action and challenge dice
-  - [ ] Set number of action and challenge boost dice
+  - [x] Set number of action and challenge boost dice
   - [ ] Roll Dice and view results
   - [ ] Auto cancel results
+  - [ ] Reset Dice
 - [ ] Get feedback
 - [ ] Pick and add a license
 - [ ] Improve visual design
@@ -27,7 +28,7 @@ TODO:s
 
 - `npm run dev` run local development server
 - Testing
-  - `npm run unittest` – runs any vitest unit tests
+  - `npm run tdd` – currently runs and watches any vitest tests
 
 ## Project Decisions
 
