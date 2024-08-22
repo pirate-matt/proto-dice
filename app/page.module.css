@@ -1,7 +1,7 @@
 .main {
   display: flex;
   flex-direction: column;
-  padding: 6rem;
+  padding: 1rem;
   min-height: 100vh;
 }
 
@@ -15,15 +15,18 @@
 
 .progressMessages {
   text-align: left;
+}
 
-  .heading {
-    margin-top: 1.5rem;
-    margin-bottom: 0.5rem;
-  }
+h2.styled {
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
 }
 
 /* Non-mobile */
 @media (min-width: 700px) {
+  .main {
+    padding: 6rem;
+  }
 
   .helloWorld {
     font-size: 1rem;

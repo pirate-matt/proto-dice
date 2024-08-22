@@ -5,17 +5,22 @@ An online dice-roller for Proto by [Serpenthelm Studios](https://www.serpenthelm
 TODO:s
 
 - [x] Pick a react framework to start prototyping
-- [•] Pick and implement linting/prettier/etc
-  - eslint comes bog-standard with next.js
-  - @FUTURE: worry about prettier, markdown prettier, etc.
+- [ ] Pick and implement linting/prettier/etc
+  - [x] eslint comes bog-standard with next.js
+  - [ ] @FUTURE: worry about prettier, markdown prettier, etc.
 - [x] Pick/implement testing framework
   - vitest for unit testing
   - @FUTURE: if we desire e2e (uncertain because current deploy method is unknown), use playwright
 - [ ] TDD/prototype a non-physics based "roller": d6 + boost die vs d6 + boost die
+  - [x] Set number of action and challenge dice
+  - [ ] Set number of action and challenge boost dice
+  - [ ] Roll Dice and view results
+  - [ ] Auto cancel results
 - [ ] Get feedback
 - [ ] Pick and add a license
 - [ ] Improve visual design
 - [ ] Investigate packaging & adding to Wix?
+  - [ ] Setup auto test runner pre-deploy?
 - [ ] Investigate a Physics / 3D dice rolling solution
 
 ## Common Commands / Quick Reminders
