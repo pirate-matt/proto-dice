@@ -1,5 +1,6 @@
 'use client';
 
+import { ACTION } from "next/dist/client/components/app-router-headers";
 import { useId, useReducer } from "react";
 
 // ---- TYPES & CONST ----
@@ -14,18 +15,24 @@ const ACTIONS = {
   removeChallengeDie: 'removeChallengeDie',
   boostChallenge: 'boostChallenge',
   removeChallengeBoost: 'removeChallengeBoost',
+
+  initiateDiceRoll: 'initiateDiceRoll',
+  completeDiceRoll: 'completeDiceRoll',
 } as const;
 type DiceRollerAction = keyof typeof ACTIONS;
+
+const DICE_ANIMATION_MS = 1000;
 
 const DICE_VALUES = {
   onePip: 'onePip',
   twoPips: 'twoPips',
   blank: 'blank',
   crit: 'crit',
-};
+} as const;
 type DiceValue = keyof typeof DICE_VALUES;
 
 type State = {
+  diceRolling: Boolean;
   actionDice: Array<{
     type: 'action' | 'boost';
     isRolling: boolean;
@@ -40,10 +47,54 @@ type State = {
   }>,
 };
 
+// ---- UTILS ----
+
+const ACTION_DIE = [
+  DICE_VALUES.blank,
+  DICE_VALUES.onePip,
+  DICE_VALUES.twoPips,
+  DICE_VALUES.onePip,
+  DICE_VALUES.twoPips,
+  DICE_VALUES.crit,
+] as const;
+const CHALLENGE_DIE = [
+  DICE_VALUES.blank,
+  DICE_VALUES.blank,
+  DICE_VALUES.onePip,
+  DICE_VALUES.twoPips,
+  DICE_VALUES.twoPips,
+  DICE_VALUES.crit,
+] as const;
+function rollD6(dieType: typeof ACTION_DIE | typeof CHALLENGE_DIE) {
+  const randomD6Side = Math.floor(Math.random() * 6);
+  return dieType[randomD6Side];
+}
+
+const ACTION_BOOST_DIE = [
+  DICE_VALUES.blank,
+  DICE_VALUES.onePip,
+  DICE_VALUES.twoPips,
+  // DICE_VALUES.onePip,
+  // DICE_VALUES.twoPips,
+  DICE_VALUES.crit,
+]
+const CHALLENGE_BOOST_DIE = [
+  DICE_VALUES.blank,
+  DICE_VALUES.onePip,
+  DICE_VALUES.twoPips,
+  // DICE_VALUES.onePip,
+  // DICE_VALUES.twoPips,
+  DICE_VALUES.crit,
+];
+function rollD4(dieType: typeof ACTION_BOOST_DIE | typeof CHALLENGE_BOOST_DIE) {
+  const randomD4Side = Math.floor(Math.random() * 4);
+  return dieType[randomD4Side];
+}
+
 // ---- REDUCER ----
 
 function diceRollerReducer(
-  { actionDice, challengeDice }: State,
+  { actionDice, challengeDice, ...remainingCurState }: State,
   action: DiceRollerAction
 ): State {
 
@@ -52,6 +103,7 @@ function diceRollerReducer(
     // ADD Action d6
     case ACTIONS.addActionDie:
       return {
+        ...remainingCurState,
         actionDice: [
           ...actionDice.map((actionDie) => ({ ...actionDie })),
           {
@@ -73,12 +125,14 @@ function diceRollerReducer(
         return true;
       })
       return {
+        ...remainingCurState,
         actionDice: oneLessActionDie.map((actionDie) => ({ ...actionDie })),
         challengeDice: challengeDice.map((challengeDie) => ({ ...challengeDie })),
       };
     // BOOST Action (d4)
     case ACTIONS.boostAction:
       return {
+        ...remainingCurState,
         actionDice: [
           ...actionDice.map((actionDie) => ({ ...actionDie })),
           {
@@ -100,6 +154,7 @@ function diceRollerReducer(
         return true;
       })
       return {
+        ...remainingCurState,
         actionDice: oneLessActionBoost.map((actionDie) => ({ ...actionDie })),
         challengeDice: challengeDice.map((challengeDie) => ({ ...challengeDie })),
       };
@@ -107,6 +162,7 @@ function diceRollerReducer(
     // ADD Challenge d6
     case ACTIONS.addChallengeDie:
       return {
+        ...remainingCurState,
         actionDice: actionDice.map((actionDie) => ({ ...actionDie })),
         challengeDice: [
           ...challengeDice.map((challengeDie) => ({ ...challengeDie })),
@@ -128,12 +184,14 @@ function diceRollerReducer(
         return true;
       })
       return {
+        ...remainingCurState,
         actionDice: actionDice.map((actionDie) => ({ ...actionDie })),
         challengeDice: oneLessChallengeDie.map((challengeDie) => ({ ...challengeDie })),
       };
     // BOOST Challenge (d4)
     case ACTIONS.boostChallenge:
       return {
+        ...remainingCurState,
         actionDice: actionDice.map((actionDie) => ({ ...actionDie })),
         challengeDice: [
           ...challengeDice.map((challengeDie) => ({ ...challengeDie })),
@@ -155,8 +213,40 @@ function diceRollerReducer(
         return true;
       })
       return {
+        ...remainingCurState,
         actionDice: actionDice.map((actionDie) => ({ ...actionDie })),
         challengeDice: oneLessChallengeBoost.map((challengeDie) => ({ ...challengeDie })),
+      };
+    // Roll Dice
+    case ACTIONS.initiateDiceRoll:
+      return {
+        ...remainingCurState,
+        diceRolling: true,
+        actionDice: actionDice.map((actionDie) => ({
+          ...actionDie,
+          isRolling: true,
+          value: undefined,
+        })),
+        challengeDice: challengeDice.map((challengeDie) => ({
+          ...challengeDie,
+          isRolling: true,
+          value: undefined,
+        })),
+      };
+    case ACTIONS.completeDiceRoll:
+      return {
+        ...remainingCurState,
+        diceRolling: false,
+        actionDice: actionDice.map((actionDie) => ({
+          ...actionDie,
+          isRolling: false,
+          value: actionDie.type === 'boost' ? rollD4(ACTION_BOOST_DIE) : rollD6(ACTION_DIE),
+        })),
+        challengeDice: challengeDice.map((challengeDie) => ({
+          ...challengeDie,
+          isRolling: false,
+          value: challengeDie.type === 'boost' ? rollD4(CHALLENGE_BOOST_DIE) : rollD6(CHALLENGE_DIE),
+        })),
       };
   }
 }
@@ -166,6 +256,7 @@ function diceRollerReducer(
 export function DiceRoller() {
   const idPrefix = useId();
   const [state, dispatch] = useReducer(diceRollerReducer, {
+    diceRolling: false,
     actionDice: [],
     challengeDice: [],
   });
@@ -177,6 +268,14 @@ export function DiceRoller() {
 
   const challengeD6Count = challengeDice.filter(({ type }) => type === 'challenge').length;
   const challengeBoostCount = challengeDice.length - challengeD6Count;
+
+  const handleDiceRoll = () => {
+    dispatch(ACTIONS.initiateDiceRoll);
+    // @FUTURE: use animation listeners?
+    setTimeout(() => {
+      dispatch(ACTIONS.completeDiceRoll);
+    }, DICE_ANIMATION_MS);
+  }
 
   return (
     <section>
@@ -223,6 +322,39 @@ export function DiceRoller() {
 
       </div>
 
+      <div>
+        <h3>Dice Tray</h3>
+        <div>
+          <button onClick={handleDiceRoll}>Roll Dice</button>
+        </div>
+
+        <fieldset>
+          <label>Action</label>
+          {actionDice.map(({ isRolling, type, value}, index) => (
+            <div
+              key={`${idPrefix}rolled-action-dice--${index}`}
+              data-testid={`${isRolling ? 'rolling' : 'rolled'}-action${type === 'boost' ? '-boost' : ''}-die`}
+            >
+              {type === 'boost' ? 'd4: ' : 'd6: '}
+              {isRolling ? 'Rolling...' : value}
+            </div>
+          ))}
+        </fieldset>
+
+        <fieldset>
+          <label>Challenge</label>
+          {challengeDice.map(({ isRolling, type, value }, index) => (
+            <div
+              key={`${idPrefix}rolled-challenge-dice--${index}`}
+              data-testid={`${isRolling ? 'rolling' : 'rolled'}-challenge${type === 'boost' ? '-boost' : ''}-die`}
+            >
+              {type === 'boost' ? 'd4: ' : 'd6: '}
+              {isRolling ? 'Rolling...' : value}
+            </div>
+          ))}
+        </fieldset>
+
+      </div>
     </section>
   );
 }
