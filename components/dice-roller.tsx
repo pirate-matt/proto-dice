@@ -1,25 +1,24 @@
 'use client';
 
-import { ACTION } from "next/dist/client/components/app-router-headers";
 import { useId, useReducer } from "react";
 
 // ---- TYPES & CONST ----
 
-const ACTIONS = {
-  addActionDie: 'addActionDie',
-  removeActionDie: 'removeActionDie',
-  boostAction: 'boostAction',
-  removeActionBoost: 'removeActionBoost',
+const INITIATIONS = {
+  addInitiationDie: 'addInitiationDie',
+  removeInitiationDie: 'removeInitiationDie',
+  boostInitiation: 'boostInitiation',
+  removeInitiationBoost: 'removeInitiationBoost',
 
-  addChallengeDie: 'addChallengeDie',
-  removeChallengeDie: 'removeChallengeDie',
-  boostChallenge: 'boostChallenge',
-  removeChallengeBoost: 'removeChallengeBoost',
+  addOppositionDie: 'addOppositionDie',
+  removeOppositionDie: 'removeOppositionDie',
+  boostOpposition: 'boostOpposition',
+  removeOppositionBoost: 'removeOppositionBoost',
 
   initiateDiceRoll: 'initiateDiceRoll',
   completeDiceRoll: 'completeDiceRoll',
 } as const;
-type DiceRollerAction = keyof typeof ACTIONS;
+type DiceRollerInitiation = keyof typeof INITIATIONS;
 
 const DICE_ANIMATION_MS = 1000;
 
@@ -33,14 +32,14 @@ type DiceValue = keyof typeof DICE_VALUES;
 
 type State = {
   diceRolling: Boolean;
-  actionDice: Array<{
-    type: 'action' | 'boost';
+  initiationDice: Array<{
+    type: 'initiation' | 'boost';
     isRolling: boolean;
     value?: DiceValue;
     isCanceled: boolean;
   }>,
-  challengeDice: Array<{
-    type: 'challenge' | 'boost'
+  oppositionDice: Array<{
+    type: 'opposition' | 'boost'
     isRolling: boolean;
     value?: DiceValue;
     isCanceled: boolean;
@@ -49,7 +48,7 @@ type State = {
 
 // ---- UTILS ----
 
-const ACTION_DIE = [
+const INITIATION_DIE = [
   DICE_VALUES.blank,
   DICE_VALUES.onePip,
   DICE_VALUES.twoPips,
@@ -57,7 +56,7 @@ const ACTION_DIE = [
   DICE_VALUES.twoPips,
   DICE_VALUES.crit,
 ] as const;
-const CHALLENGE_DIE = [
+const OPPOSITION_DIE = [
   DICE_VALUES.blank,
   DICE_VALUES.blank,
   DICE_VALUES.onePip,
@@ -65,12 +64,12 @@ const CHALLENGE_DIE = [
   DICE_VALUES.twoPips,
   DICE_VALUES.crit,
 ] as const;
-function rollD6(dieType: typeof ACTION_DIE | typeof CHALLENGE_DIE) {
+function rollD6(dieType: typeof INITIATION_DIE | typeof OPPOSITION_DIE) {
   const randomD6Side = Math.floor(Math.random() * 6);
   return dieType[randomD6Side];
 }
 
-const ACTION_BOOST_DIE = [
+const INITIATION_BOOST_DIE = [
   DICE_VALUES.blank,
   DICE_VALUES.onePip,
   DICE_VALUES.twoPips,
@@ -78,7 +77,7 @@ const ACTION_BOOST_DIE = [
   // DICE_VALUES.twoPips,
   DICE_VALUES.crit,
 ]
-const CHALLENGE_BOOST_DIE = [
+const OPPOSITION_BOOST_DIE = [
   DICE_VALUES.blank,
   DICE_VALUES.onePip,
   DICE_VALUES.twoPips,
@@ -86,7 +85,7 @@ const CHALLENGE_BOOST_DIE = [
   // DICE_VALUES.twoPips,
   DICE_VALUES.crit,
 ];
-function rollD4(dieType: typeof ACTION_BOOST_DIE | typeof CHALLENGE_BOOST_DIE) {
+function rollD4(dieType: typeof INITIATION_BOOST_DIE | typeof OPPOSITION_BOOST_DIE) {
   const randomD4Side = Math.floor(Math.random() * 4);
   return dieType[randomD4Side];
 }
@@ -94,158 +93,158 @@ function rollD4(dieType: typeof ACTION_BOOST_DIE | typeof CHALLENGE_BOOST_DIE) {
 // ---- REDUCER ----
 
 function diceRollerReducer(
-  { actionDice, challengeDice, ...remainingCurState }: State,
-  action: DiceRollerAction
+  { initiationDice, oppositionDice, ...remainingCurState }: State,
+  initiation: DiceRollerInitiation
 ): State {
 
-  switch(action) {
-    // -- Action Dice --
-    // ADD Action d6
-    case ACTIONS.addActionDie:
+  switch(initiation) {
+    // -- Initiation Dice --
+    // ADD Initiation d6
+    case INITIATIONS.addInitiationDie:
       return {
         ...remainingCurState,
-        actionDice: [
-          ...actionDice.map((actionDie) => ({ ...actionDie })),
+        initiationDice: [
+          ...initiationDice.map((initiationDie) => ({ ...initiationDie })),
           {
-            type: 'action',
+            type: 'initiation',
             isRolling: false,
             isCanceled: false,
           },
         ],
-        challengeDice: challengeDice.map((challengeDie) => ({ ...challengeDie })),
+        oppositionDice: oppositionDice.map((oppositionDie) => ({ ...oppositionDie })),
       };
-    // REMOVE Action d6
-    case ACTIONS.removeActionDie:
-      let actionDieRemoved = false;
-      const oneLessActionDie = actionDice.filter(({ type }) => {
-        if (!actionDieRemoved && type === 'action') {
-          actionDieRemoved = true;
+    // REMOVE Initiation d6
+    case INITIATIONS.removeInitiationDie:
+      let initiationDieRemoved = false;
+      const oneLessInitiationDie = initiationDice.filter(({ type }) => {
+        if (!initiationDieRemoved && type === 'initiation') {
+          initiationDieRemoved = true;
           return false;
         }
         return true;
       })
       return {
         ...remainingCurState,
-        actionDice: oneLessActionDie.map((actionDie) => ({ ...actionDie })),
-        challengeDice: challengeDice.map((challengeDie) => ({ ...challengeDie })),
+        initiationDice: oneLessInitiationDie.map((initiationDie) => ({ ...initiationDie })),
+        oppositionDice: oppositionDice.map((oppositionDie) => ({ ...oppositionDie })),
       };
-    // BOOST Action (d4)
-    case ACTIONS.boostAction:
+    // BOOST Initiation (d4)
+    case INITIATIONS.boostInitiation:
       return {
         ...remainingCurState,
-        actionDice: [
-          ...actionDice.map((actionDie) => ({ ...actionDie })),
-          {
-            type: 'boost',
-            isRolling: false,
-            isCanceled: false,
-          },
-        ],
-        challengeDice: challengeDice.map((challengeDie) => ({ ...challengeDie })),
-      };
-    // Remove Action BOOST (d4)
-    case ACTIONS.removeActionBoost:
-      let actionBoostRemoved = false;
-      const oneLessActionBoost = actionDice.filter(({ type }) => {
-        if (!actionBoostRemoved && type === 'boost') {
-          actionBoostRemoved = true;
-          return false;
-        }
-        return true;
-      })
-      return {
-        ...remainingCurState,
-        actionDice: oneLessActionBoost.map((actionDie) => ({ ...actionDie })),
-        challengeDice: challengeDice.map((challengeDie) => ({ ...challengeDie })),
-      };
-    // -- Challenge Dice --
-    // ADD Challenge d6
-    case ACTIONS.addChallengeDie:
-      return {
-        ...remainingCurState,
-        actionDice: actionDice.map((actionDie) => ({ ...actionDie })),
-        challengeDice: [
-          ...challengeDice.map((challengeDie) => ({ ...challengeDie })),
-          {
-            type: 'challenge',
-            isRolling: false,
-            isCanceled: false,
-          },
-        ],
-      };
-    // REMOVE Challenge d6
-    case ACTIONS.removeChallengeDie:
-      let challengeDieRemoved = false;
-      const oneLessChallengeDie = challengeDice.filter(({ type }) => {
-        if (!challengeDieRemoved && type === 'challenge') {
-          challengeDieRemoved = true;
-          return false;
-        }
-        return true;
-      })
-      return {
-        ...remainingCurState,
-        actionDice: actionDice.map((actionDie) => ({ ...actionDie })),
-        challengeDice: oneLessChallengeDie.map((challengeDie) => ({ ...challengeDie })),
-      };
-    // BOOST Challenge (d4)
-    case ACTIONS.boostChallenge:
-      return {
-        ...remainingCurState,
-        actionDice: actionDice.map((actionDie) => ({ ...actionDie })),
-        challengeDice: [
-          ...challengeDice.map((challengeDie) => ({ ...challengeDie })),
+        initiationDice: [
+          ...initiationDice.map((initiationDie) => ({ ...initiationDie })),
           {
             type: 'boost',
             isRolling: false,
             isCanceled: false,
           },
         ],
+        oppositionDice: oppositionDice.map((oppositionDie) => ({ ...oppositionDie })),
       };
-    // Remove Challenge BOOST (d4)
-    case ACTIONS.removeChallengeBoost:
-      let challengeBoostRemoved = false;
-      const oneLessChallengeBoost = challengeDice.filter(({ type }) => {
-        if (!challengeBoostRemoved && type === 'boost') {
-          challengeBoostRemoved = true;
+    // Remove Initiation BOOST (d4)
+    case INITIATIONS.removeInitiationBoost:
+      let initiationBoostRemoved = false;
+      const oneLessInitiationBoost = initiationDice.filter(({ type }) => {
+        if (!initiationBoostRemoved && type === 'boost') {
+          initiationBoostRemoved = true;
           return false;
         }
         return true;
       })
       return {
         ...remainingCurState,
-        actionDice: actionDice.map((actionDie) => ({ ...actionDie })),
-        challengeDice: oneLessChallengeBoost.map((challengeDie) => ({ ...challengeDie })),
+        initiationDice: oneLessInitiationBoost.map((initiationDie) => ({ ...initiationDie })),
+        oppositionDice: oppositionDice.map((oppositionDie) => ({ ...oppositionDie })),
+      };
+    // -- Opposition Dice --
+    // ADD Opposition d6
+    case INITIATIONS.addOppositionDie:
+      return {
+        ...remainingCurState,
+        initiationDice: initiationDice.map((initiationDie) => ({ ...initiationDie })),
+        oppositionDice: [
+          ...oppositionDice.map((oppositionDie) => ({ ...oppositionDie })),
+          {
+            type: 'opposition',
+            isRolling: false,
+            isCanceled: false,
+          },
+        ],
+      };
+    // REMOVE Opposition d6
+    case INITIATIONS.removeOppositionDie:
+      let oppositionDieRemoved = false;
+      const oneLessOppositionDie = oppositionDice.filter(({ type }) => {
+        if (!oppositionDieRemoved && type === 'opposition') {
+          oppositionDieRemoved = true;
+          return false;
+        }
+        return true;
+      })
+      return {
+        ...remainingCurState,
+        initiationDice: initiationDice.map((initiationDie) => ({ ...initiationDie })),
+        oppositionDice: oneLessOppositionDie.map((oppositionDie) => ({ ...oppositionDie })),
+      };
+    // BOOST Opposition (d4)
+    case INITIATIONS.boostOpposition:
+      return {
+        ...remainingCurState,
+        initiationDice: initiationDice.map((initiationDie) => ({ ...initiationDie })),
+        oppositionDice: [
+          ...oppositionDice.map((oppositionDie) => ({ ...oppositionDie })),
+          {
+            type: 'boost',
+            isRolling: false,
+            isCanceled: false,
+          },
+        ],
+      };
+    // Remove Opposition BOOST (d4)
+    case INITIATIONS.removeOppositionBoost:
+      let oppositionBoostRemoved = false;
+      const oneLessOppositionBoost = oppositionDice.filter(({ type }) => {
+        if (!oppositionBoostRemoved && type === 'boost') {
+          oppositionBoostRemoved = true;
+          return false;
+        }
+        return true;
+      })
+      return {
+        ...remainingCurState,
+        initiationDice: initiationDice.map((initiationDie) => ({ ...initiationDie })),
+        oppositionDice: oneLessOppositionBoost.map((oppositionDie) => ({ ...oppositionDie })),
       };
     // Roll Dice
-    case ACTIONS.initiateDiceRoll:
+    case INITIATIONS.initiateDiceRoll:
       return {
         ...remainingCurState,
         diceRolling: true,
-        actionDice: actionDice.map((actionDie) => ({
-          ...actionDie,
+        initiationDice: initiationDice.map((initiationDie) => ({
+          ...initiationDie,
           isRolling: true,
           value: undefined,
         })),
-        challengeDice: challengeDice.map((challengeDie) => ({
-          ...challengeDie,
+        oppositionDice: oppositionDice.map((oppositionDie) => ({
+          ...oppositionDie,
           isRolling: true,
           value: undefined,
         })),
       };
-    case ACTIONS.completeDiceRoll:
+    case INITIATIONS.completeDiceRoll:
       return {
         ...remainingCurState,
         diceRolling: false,
-        actionDice: actionDice.map((actionDie) => ({
-          ...actionDie,
+        initiationDice: initiationDice.map((initiationDie) => ({
+          ...initiationDie,
           isRolling: false,
-          value: actionDie.type === 'boost' ? rollD4(ACTION_BOOST_DIE) : rollD6(ACTION_DIE),
+          value: initiationDie.type === 'boost' ? rollD4(INITIATION_BOOST_DIE) : rollD6(INITIATION_DIE),
         })),
-        challengeDice: challengeDice.map((challengeDie) => ({
-          ...challengeDie,
+        oppositionDice: oppositionDice.map((oppositionDie) => ({
+          ...oppositionDie,
           isRolling: false,
-          value: challengeDie.type === 'boost' ? rollD4(CHALLENGE_BOOST_DIE) : rollD6(CHALLENGE_DIE),
+          value: oppositionDie.type === 'boost' ? rollD4(OPPOSITION_BOOST_DIE) : rollD6(OPPOSITION_DIE),
         })),
       };
   }
@@ -257,66 +256,66 @@ export function DiceRoller() {
   const idPrefix = useId();
   const [state, dispatch] = useReducer(diceRollerReducer, {
     diceRolling: false,
-    actionDice: [],
-    challengeDice: [],
+    initiationDice: [],
+    oppositionDice: [],
   });
 
-  const { actionDice, challengeDice } = state;
+  const { initiationDice, oppositionDice } = state;
 
-  const actionD6Count = actionDice.filter(({ type }) => type === 'action').length;
-  const actionBoostCount = actionDice.length - actionD6Count;
+  const initiationD6Count = initiationDice.filter(({ type }) => type === 'initiation').length;
+  const initiationBoostCount = initiationDice.length - initiationD6Count;
 
-  const challengeD6Count = challengeDice.filter(({ type }) => type === 'challenge').length;
-  const challengeBoostCount = challengeDice.length - challengeD6Count;
+  const oppositionD6Count = oppositionDice.filter(({ type }) => type === 'opposition').length;
+  const oppositionBoostCount = oppositionDice.length - oppositionD6Count;
 
   const handleDiceRoll = () => {
-    dispatch(ACTIONS.initiateDiceRoll);
+    dispatch(INITIATIONS.initiateDiceRoll);
     // @FUTURE: use animation listeners?
     setTimeout(() => {
-      dispatch(ACTIONS.completeDiceRoll);
+      dispatch(INITIATIONS.completeDiceRoll);
     }, DICE_ANIMATION_MS);
   }
 
   return (
     <section>
       <div>
-        <h3>Action Dice</h3>
+        <h3>Initiation Dice</h3>
         <div>
-          <button onClick={() => dispatch(ACTIONS.addActionDie)}>Add Action Die</button>
-          <button onClick={() => dispatch(ACTIONS.removeActionDie)}>Remove Action Die</button>
+          <button onClick={() => dispatch(INITIATIONS.addInitiationDie)}>Add Initiation Die</button>
+          <button onClick={() => dispatch(INITIATIONS.removeInitiationDie)}>Remove Initiation Die</button>
           <div>
-            <label htmlFor={`${idPrefix}action-dice-count`}>Action Dice (d6)</label>
-            <input readOnly id={`${idPrefix}action-dice-count`} type="number" value={actionD6Count} />
+            <label htmlFor={`${idPrefix}initiation-dice-count`}>Initiation Dice (d6)</label>
+            <input readOnly id={`${idPrefix}initiation-dice-count`} type="number" value={initiationD6Count} />
           </div>
         </div>
 
         <div>
-          <button onClick={() => dispatch(ACTIONS.boostAction)}>Boost Action</button>
-          <button onClick={() => dispatch(ACTIONS.removeActionBoost)}>Remove Action Boost</button>
+          <button onClick={() => dispatch(INITIATIONS.boostInitiation)}>Boost Initiation</button>
+          <button onClick={() => dispatch(INITIATIONS.removeInitiationBoost)}>Remove Initiation Boost</button>
           <div>
-            <label htmlFor={`${idPrefix}action-boost-count`}>Action Boost (d4)</label>
-            <input readOnly id={`${idPrefix}action-boost-count`} type="number" value={actionBoostCount} />
+            <label htmlFor={`${idPrefix}initiation-boost-count`}>Initiation Boost (d4)</label>
+            <input readOnly id={`${idPrefix}initiation-boost-count`} type="number" value={initiationBoostCount} />
           </div>
         </div>
       </div>
 
       <div>
-        <h3>Challenge Dice</h3>
+        <h3>Opposition Dice</h3>
         <div>
-          <button onClick={() => dispatch(ACTIONS.addChallengeDie)}>Add Challenge Die</button>
-          <button onClick={() => dispatch(ACTIONS.removeChallengeDie)}>Remove Challenge Die</button>
+          <button onClick={() => dispatch(INITIATIONS.addOppositionDie)}>Add Opposition Die</button>
+          <button onClick={() => dispatch(INITIATIONS.removeOppositionDie)}>Remove Opposition Die</button>
           <div>
-            <label htmlFor={`${idPrefix}challenge-dice-count`}>Challenge Dice (d6)</label>
-            <input readOnly id={`${idPrefix}challenge-dice-count`} type="number" value={challengeD6Count} />
+            <label htmlFor={`${idPrefix}opposition-dice-count`}>Opposition Dice (d6)</label>
+            <input readOnly id={`${idPrefix}opposition-dice-count`} type="number" value={oppositionD6Count} />
           </div>
         </div>
 
         <div>
-          <button onClick={() => dispatch(ACTIONS.boostChallenge)}>Boost Challenge</button>
-          <button onClick={() => dispatch(ACTIONS.removeChallengeBoost)}>Remove Challenge Boost</button>
+          <button onClick={() => dispatch(INITIATIONS.boostOpposition)}>Boost Opposition</button>
+          <button onClick={() => dispatch(INITIATIONS.removeOppositionBoost)}>Remove Opposition Boost</button>
           <div>
-            <label htmlFor={`${idPrefix}challenge-boost-count`}>Challenge Boost (d4)</label>
-            <input readOnly id={`${idPrefix}challenge-boost-count`} type="number" value={challengeBoostCount} />
+            <label htmlFor={`${idPrefix}opposition-boost-count`}>Opposition Boost (d4)</label>
+            <input readOnly id={`${idPrefix}opposition-boost-count`} type="number" value={oppositionBoostCount} />
           </div>
         </div>
 
@@ -329,11 +328,11 @@ export function DiceRoller() {
         </div>
 
         <fieldset>
-          <label>Action</label>
-          {actionDice.map(({ isRolling, type, value}, index) => (
+          <label>Initiation</label>
+          {initiationDice.map(({ isRolling, type, value}, index) => (
             <div
-              key={`${idPrefix}rolled-action-dice--${index}`}
-              data-testid={`${isRolling ? 'rolling' : 'rolled'}-action${type === 'boost' ? '-boost' : ''}-die`}
+              key={`${idPrefix}rolled-initiation-dice--${index}`}
+              data-testid={`${isRolling ? 'rolling' : 'rolled'}-initiation${type === 'boost' ? '-boost' : ''}-die`}
             >
               {type === 'boost' ? 'd4: ' : 'd6: '}
               {isRolling ? 'Rolling...' : value}
@@ -342,11 +341,11 @@ export function DiceRoller() {
         </fieldset>
 
         <fieldset>
-          <label>Challenge</label>
-          {challengeDice.map(({ isRolling, type, value }, index) => (
+          <label>Opposition</label>
+          {oppositionDice.map(({ isRolling, type, value }, index) => (
             <div
-              key={`${idPrefix}rolled-challenge-dice--${index}`}
-              data-testid={`${isRolling ? 'rolling' : 'rolled'}-challenge${type === 'boost' ? '-boost' : ''}-die`}
+              key={`${idPrefix}rolled-opposition-dice--${index}`}
+              data-testid={`${isRolling ? 'rolling' : 'rolled'}-opposition${type === 'boost' ? '-boost' : ''}-die`}
             >
               {type === 'boost' ? 'd4: ' : 'd6: '}
               {isRolling ? 'Rolling...' : value}

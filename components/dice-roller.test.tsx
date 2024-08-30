@@ -4,11 +4,11 @@ import { render, within } from '@testing-library/react';
 import { DiceRoller } from './dice-roller';
 
 describe('TDD-ing dice-roller', async () => {
-  test('Can add action dice and remove', async () => {
+  test('Can add initiation dice and remove', async () => {
     const user = userEvent.setup();
-    const addName = /add action die/i;
-    const removeName = /remove action die/i;
-    const valueLabel = /action dice/i;
+    const addName = /add initiation die/i;
+    const removeName = /remove initiation die/i;
+    const valueLabel = /initiation dice/i;
 
     const { container } = render(<DiceRoller />);
     const withinContainer = within(container);
@@ -25,11 +25,11 @@ describe('TDD-ing dice-roller', async () => {
     expect(await withinContainer.findByLabelText(valueLabel)).toMatchObject({ value: '1' });
   });
 
-  test('Can add action boost dice and remove', async () => {
+  test('Can add initiation boost dice and remove', async () => {
     const user = userEvent.setup();
-    const addName = /boost action/i;
-    const removeName = /remove action boost/i;
-    const valueLabel = /action boost \(d4\)/i;
+    const addName = /boost initiation/i;
+    const removeName = /remove initiation boost/i;
+    const valueLabel = /initiation boost \(d4\)/i;
 
     const { container } = render(<DiceRoller />);
     const withinContainer = within(container);
@@ -47,11 +47,11 @@ describe('TDD-ing dice-roller', async () => {
   });
 
 
-  test('Can add challenge dice and remove', async () => {
+  test('Can add opposition dice and remove', async () => {
     const user = userEvent.setup();
-    const addName = /add challenge die/i;
-    const removeName = /remove challenge die/i;
-    const valueLabel = /challenge dice/i;
+    const addName = /add opposition die/i;
+    const removeName = /remove opposition die/i;
+    const valueLabel = /opposition dice/i;
 
     const { container } = render(<DiceRoller />);
     const withinContainer = within(container);
@@ -68,11 +68,11 @@ describe('TDD-ing dice-roller', async () => {
     expect(await withinContainer.findByLabelText(valueLabel)).toMatchObject({ value: '1' });
   });
 
-  test('Can add challenge boost dice and remove', async () => {
+  test('Can add opposition boost dice and remove', async () => {
     const user = userEvent.setup();
-    const addName = /boost challenge/i;
-    const removeName = /remove challenge boost/i;
-    const valueLabel = /challenge boost \(d4\)/i;
+    const addName = /boost opposition/i;
+    const removeName = /remove opposition boost/i;
+    const valueLabel = /opposition boost \(d4\)/i;
 
     const { container } = render(<DiceRoller />);
     const withinContainer = within(container);
@@ -95,61 +95,61 @@ describe('TDD-ing dice-roller', async () => {
     const { container } = render(<DiceRoller />);
     const withinContainer = within(container);
 
-    await user.click(withinContainer.getByRole('button', { name: /add action die/i }));
-    await user.click(withinContainer.getByRole('button', { name: /add action die/i }));
-    await user.click(withinContainer.getByRole('button', { name: /boost action/i }));
+    await user.click(withinContainer.getByRole('button', { name: /add initiation die/i }));
+    await user.click(withinContainer.getByRole('button', { name: /add initiation die/i }));
+    await user.click(withinContainer.getByRole('button', { name: /boost initiation/i }));
 
-    await user.click(withinContainer.getByRole('button', { name: /add challenge die/i }));
-    await user.click(withinContainer.getByRole('button', { name: /boost challenge/i }));
+    await user.click(withinContainer.getByRole('button', { name: /add opposition die/i }));
+    await user.click(withinContainer.getByRole('button', { name: /boost opposition/i }));
 
     await user.click(withinContainer.getByRole('button', { name: /roll/i }));
 
     // Rolling messages check
 
-    const rollingActionDice = await withinContainer.findAllByTestId('rolling-action-die');
-    expect(rollingActionDice.length).toBe(2);
-    for (const rollingActionDie of rollingActionDice) {
-      expect(rollingActionDie.textContent).toMatch(/rolling\.\.\./i);
+    const rollingInitiationDice = await withinContainer.findAllByTestId('rolling-initiation-die');
+    expect(rollingInitiationDice.length).toBe(2);
+    for (const rollingInitiationDie of rollingInitiationDice) {
+      expect(rollingInitiationDie.textContent).toMatch(/rolling\.\.\./i);
     }
-    const rollingActionBoostDice = await withinContainer.findAllByTestId('rolling-action-boost-die');
-    expect(rollingActionBoostDice.length).toBe(1);
-    for (const rollingActionBoostDie of rollingActionBoostDice) {
-      expect(rollingActionBoostDie.textContent).toMatch(/rolling\.\.\./i);
+    const rollingInitiationBoostDice = await withinContainer.findAllByTestId('rolling-initiation-boost-die');
+    expect(rollingInitiationBoostDice.length).toBe(1);
+    for (const rollingInitiationBoostDie of rollingInitiationBoostDice) {
+      expect(rollingInitiationBoostDie.textContent).toMatch(/rolling\.\.\./i);
     }
 
-    const rollingChallengeDice = await withinContainer.findAllByTestId('rolling-challenge-die');
-    expect(rollingChallengeDice.length).toBe(1);
-    for (const rollingChallengeDie of rollingChallengeDice) {
-      expect(rollingChallengeDie.textContent).toMatch(/rolling\.\.\./i);
+    const rollingOppositionDice = await withinContainer.findAllByTestId('rolling-opposition-die');
+    expect(rollingOppositionDice.length).toBe(1);
+    for (const rollingOppositionDie of rollingOppositionDice) {
+      expect(rollingOppositionDie.textContent).toMatch(/rolling\.\.\./i);
     }
-    const rollingChallengeBoostDice = await withinContainer.findAllByTestId('rolling-challenge-boost-die');
-    expect(rollingChallengeBoostDice.length).toBe(1);
-    for (const rollingChallengeBoostDie of rollingChallengeBoostDice) {
-      expect(rollingChallengeBoostDie.textContent).toMatch(/rolling\.\.\./i);
+    const rollingOppositionBoostDice = await withinContainer.findAllByTestId('rolling-opposition-boost-die');
+    expect(rollingOppositionBoostDice.length).toBe(1);
+    for (const rollingOppositionBoostDie of rollingOppositionBoostDice) {
+      expect(rollingOppositionBoostDie.textContent).toMatch(/rolling\.\.\./i);
     }
 
     // Rolled type check
 
-    const rolledActionDice = await withinContainer.findAllByTestId('rolled-action-die');
-    expect(rolledActionDice.length).toBe(2);
-    for (const rolledActionDie of rolledActionDice) {
-      expect(rolledActionDie.textContent).toMatch(/d6/i);
+    const rolledInitiationDice = await withinContainer.findAllByTestId('rolled-initiation-die');
+    expect(rolledInitiationDice.length).toBe(2);
+    for (const rolledInitiationDie of rolledInitiationDice) {
+      expect(rolledInitiationDie.textContent).toMatch(/d6/i);
     }
-    const rolledActionBoostDice = await withinContainer.findAllByTestId('rolled-action-boost-die');
-    expect(rolledActionBoostDice.length).toBe(1);
-    for (const rolledActionBoostDie of rolledActionBoostDice) {
-      expect(rolledActionBoostDie.textContent).toMatch(/d4/i);
+    const rolledInitiationBoostDice = await withinContainer.findAllByTestId('rolled-initiation-boost-die');
+    expect(rolledInitiationBoostDice.length).toBe(1);
+    for (const rolledInitiationBoostDie of rolledInitiationBoostDice) {
+      expect(rolledInitiationBoostDie.textContent).toMatch(/d4/i);
     }
 
-    const rolledChallengeDice = await withinContainer.findAllByTestId('rolled-challenge-die');
-    expect(rolledChallengeDice.length).toBe(1);
-    for (const rolledChallengeDie of rolledChallengeDice) {
-      expect(rolledChallengeDie.textContent).toMatch(/d6/i);
+    const rolledOppositionDice = await withinContainer.findAllByTestId('rolled-opposition-die');
+    expect(rolledOppositionDice.length).toBe(1);
+    for (const rolledOppositionDie of rolledOppositionDice) {
+      expect(rolledOppositionDie.textContent).toMatch(/d6/i);
     }
-    const rolledChallengeBoostDice = await withinContainer.findAllByTestId('rolled-challenge-boost-die');
-    expect(rolledChallengeBoostDice.length).toBe(1);
-    for (const rolledChallengeBoostDie of rolledChallengeBoostDice) {
-      expect(rolledChallengeBoostDie.textContent).toMatch(/d4/i);
+    const rolledOppositionBoostDice = await withinContainer.findAllByTestId('rolled-opposition-boost-die');
+    expect(rolledOppositionBoostDice.length).toBe(1);
+    for (const rolledOppositionBoostDie of rolledOppositionBoostDice) {
+      expect(rolledOppositionBoostDie.textContent).toMatch(/d4/i);
     }
 
   });
