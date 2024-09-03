@@ -283,4 +283,32 @@ describe('TDD-ing dice-roller', async () => {
       oppositionDiceCurrentOrderIndex = newOrderIndex;
     }
   });
+  test('Reset dice button removes all added dice and boost dice', async () => {
+    const user = userEvent.setup();
+
+    const { container } = render(<DiceRoller />);
+    const withinContainer = within(container);
+    const withinDiceTray = within(await withinContainer.findByTestId('dice-tray'));
+
+    // Add some initiation dice and boost dice
+    await user.click(withinContainer.getByRole('button', { name: /add initiation die/i }));
+    await user.click(withinContainer.getByRole('button', { name: /add initiation die/i }));
+    await user.click(withinContainer.getByRole('button', { name: /boost initiation/i }));
+
+    // Add some opposition dice and boost dice
+    await user.click(withinContainer.getByRole('button', { name: /add opposition die/i }));
+    await user.click(withinContainer.getByRole('button', { name: /add opposition die/i }));
+    await user.click(withinContainer.getByRole('button', { name: /boost opposition/i }));
+
+    // Verify that dice have been added
+    expect(withinDiceTray.getAllByText(/d6/i)).toHaveLength(4);
+    expect(withinDiceTray.getAllByText(/d4/i)).toHaveLength(2);
+
+    // Click the reset button
+    await user.click(withinDiceTray.getByRole('button', { name: /reset/i }));
+
+    // Verify that all dice have been removed
+    expect(withinDiceTray.queryAllByText(/d6/i)).toHaveLength(0);
+    expect(withinDiceTray.queryAllByText(/d4/i)).toHaveLength(0);
+  });
 });
