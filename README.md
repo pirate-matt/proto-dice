@@ -15,6 +15,7 @@ TODO:s
   - [x] Set number of action and challenge dice
   - [x] Set number of action and challenge boost dice
   - [x] Roll Dice and view results
+  - [x] Sort dice by type/value
   - [ ] Auto cancel results
   - [ ] Reset Dice
   - [ ] Initial visual design pass

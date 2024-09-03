@@ -28,7 +28,7 @@ const DICE_VALUES = {
   blank: 'blank',
   crit: 'crit',
 } as const;
-type DiceValue = keyof typeof DICE_VALUES;
+export type DiceValue = keyof typeof DICE_VALUES;
 
 type State = {
   diceRolling: Boolean;
@@ -72,7 +72,7 @@ function rollD6(dieType: typeof INITIATION_DIE | typeof OPPOSITION_DIE) {
 const INITIATION_BOOST_DIE = [
   DICE_VALUES.blank,
   DICE_VALUES.onePip,
-  DICE_VALUES.twoPips,
+  DICE_VALUES.onePip,
   // DICE_VALUES.onePip,
   // DICE_VALUES.twoPips,
   DICE_VALUES.crit,
@@ -80,7 +80,7 @@ const INITIATION_BOOST_DIE = [
 const OPPOSITION_BOOST_DIE = [
   DICE_VALUES.blank,
   DICE_VALUES.onePip,
-  DICE_VALUES.twoPips,
+  DICE_VALUES.onePip,
   // DICE_VALUES.onePip,
   // DICE_VALUES.twoPips,
   DICE_VALUES.crit,
@@ -91,6 +91,13 @@ function rollD4(dieType: typeof INITIATION_BOOST_DIE | typeof OPPOSITION_BOOST_D
 }
 
 // ---- REDUCER ----
+
+const order: Array<DiceValue> = ['onePip', 'twoPips', 'crit', 'blank'];
+function sortByDiceValue(a: { value: DiceValue }, b: { value: DiceValue }) {
+  const indexA = order.indexOf(a.value);
+  const indexB = order.indexOf(b.value);
+  return indexA - indexB;
+}
 
 function diceRollerReducer(
   { initiationDice, oppositionDice, ...remainingCurState }: State,
@@ -104,12 +111,12 @@ function diceRollerReducer(
       return {
         ...remainingCurState,
         initiationDice: [
-          ...initiationDice.map((initiationDie) => ({ ...initiationDie })),
-          {
+          { // d6 always go at the front
             type: 'initiation',
             isRolling: false,
             isCanceled: false,
           },
+          ...initiationDice.map((initiationDie) => ({ ...initiationDie })),
         ],
         oppositionDice: oppositionDice.map((oppositionDie) => ({ ...oppositionDie })),
       };
@@ -134,7 +141,7 @@ function diceRollerReducer(
         ...remainingCurState,
         initiationDice: [
           ...initiationDice.map((initiationDie) => ({ ...initiationDie })),
-          {
+          { // d4 always go at the end
             type: 'boost',
             isRolling: false,
             isCanceled: false,
@@ -164,12 +171,12 @@ function diceRollerReducer(
         ...remainingCurState,
         initiationDice: initiationDice.map((initiationDie) => ({ ...initiationDie })),
         oppositionDice: [
-          ...oppositionDice.map((oppositionDie) => ({ ...oppositionDie })),
-          {
+          { // d6 always go at the front
             type: 'opposition',
             isRolling: false,
             isCanceled: false,
           },
+          ...oppositionDice.map((oppositionDie) => ({ ...oppositionDie })),
         ],
       };
     // REMOVE Opposition d6
@@ -194,7 +201,7 @@ function diceRollerReducer(
         initiationDice: initiationDice.map((initiationDie) => ({ ...initiationDie })),
         oppositionDice: [
           ...oppositionDice.map((oppositionDie) => ({ ...oppositionDie })),
-          {
+          { // d4 always go at the end
             type: 'boost',
             isRolling: false,
             isCanceled: false,
@@ -240,12 +247,12 @@ function diceRollerReducer(
           ...initiationDie,
           isRolling: false,
           value: initiationDie.type === 'boost' ? rollD4(INITIATION_BOOST_DIE) : rollD6(INITIATION_DIE),
-        })),
+        })).sort(sortByDiceValue),
         oppositionDice: oppositionDice.map((oppositionDie) => ({
           ...oppositionDie,
           isRolling: false,
           value: oppositionDie.type === 'boost' ? rollD4(OPPOSITION_BOOST_DIE) : rollD6(OPPOSITION_DIE),
-        })),
+        })).sort(sortByDiceValue),
       };
   }
 }
@@ -327,7 +334,7 @@ export function DiceRoller() {
           <button onClick={handleDiceRoll}>Roll Dice</button>
         </div>
 
-        <fieldset>
+        <fieldset data-testid="dice-tray-initiation-dice">
           <label>Initiation</label>
           {initiationDice.map(({ isRolling, type, value}, index) => (
             <div
@@ -340,7 +347,7 @@ export function DiceRoller() {
           ))}
         </fieldset>
 
-        <fieldset>
+        <fieldset data-testid="dice-tray-opposition-dice">
           <label>Opposition</label>
           {oppositionDice.map(({ isRolling, type, value }, index) => (
             <div
