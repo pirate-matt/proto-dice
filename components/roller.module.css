@@ -1,0 +1,71 @@
+/* Dice Controls */
+
+.diceControls {
+  border-top: solid 2px #7570B3;
+  border-bottom: solid 2px #7570B3;
+
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 0.5rem 0;
+}
+
+.diceCategoryTitle {
+  font-size: 1.15rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+  text-align: center;
+  margin: 0.15rem 0 0.25rem;
+}
+
+.diceControlsRow {
+  display: flex;
+  gap: 10px;
+  justify-content: space-evenly;
+}
+
+.diceContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.diceControlButton {
+  width: 100%;
+  padding: 0.25rem 0;
+}
+
+.diceControlDice {
+  margin: 0.25rem 0;
+  height: 50px;
+  position: relative;
+}
+.diceControlDice > div {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Dice Tray */
+.diceTray {
+  display: flex;
+  flex-direction: column;
+}
+
+.diceTrayControls {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  padding: 0.5rem 0;
+}
+.diceTrayControls > button {
+  padding: 0.25rem 1rem;
+}
+
+.diceTrayResults {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.diceTrayResult {
+  height: 50px;
+}

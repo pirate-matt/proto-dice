@@ -17,11 +17,12 @@ TODO:s
   - [x] Roll Dice and view results
   - [x] Sort dice by type/value
   - [ ] Auto cancel results
-  - [ ] Reset Dice
+  - [x] Reset Dice
   - [ ] Initial visual design pass
 - [ ] Get feedback
 - [ ] Pick and add a license
-- [ ] Improve visual design
+- [•] Improve visual design
+  - [ ] update dice-roller.test.tsx to look for new svg dice results
 - [ ] Investigate packaging & adding to Wix?
   - [ ] Setup auto test runner pre-deploy?
 - [ ] Investigate a Physics / 3D dice rolling solution

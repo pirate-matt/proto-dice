@@ -2,6 +2,11 @@
 
 import { useId, useReducer } from "react";
 
+import { BoostDice } from "./dice/boost-dice";
+import { D6 } from "./dice/d6";
+
+import styles from './roller.module.css';
+
 // ---- TYPES & CONST ----
 
 const ACTIONS = {
@@ -34,15 +39,25 @@ export type DiceValue = keyof typeof DICE_VALUES;
 type State = {
   diceRolling: Boolean;
   initiationDice: Array<{
-    type: 'initiation' | 'boost';
+    type: 'initiation';
     isRolling: boolean;
-    value?: DiceValue;
+    value?: InitiationDieValue;
+    isCanceled: boolean;
+  } | {
+    type: 'boost';
+    isRolling: boolean;
+    value?: InitiationBoostDieValue;
     isCanceled: boolean;
   }>,
   oppositionDice: Array<{
-    type: 'opposition' | 'boost'
+    type: 'opposition'
     isRolling: boolean;
-    value?: DiceValue;
+    value?: OppositionDieValue;
+    isCanceled: boolean;
+  } | {
+    type: 'boost'
+    isRolling: boolean;
+    value?: OppositionBoostDieValue;
     isCanceled: boolean;
   }>,
 };
@@ -57,6 +72,8 @@ const INITIATION_DIE = [
   DICE_VALUES.twoPips,
   DICE_VALUES.crit,
 ] as const;
+export type InitiationDieValue = typeof INITIATION_DIE[number];
+
 const OPPOSITION_DIE = [
   DICE_VALUES.blank,
   DICE_VALUES.blank,
@@ -65,6 +82,8 @@ const OPPOSITION_DIE = [
   DICE_VALUES.twoPips,
   DICE_VALUES.crit,
 ] as const;
+export type OppositionDieValue = typeof OPPOSITION_DIE[number];
+
 function rollD6(dieType: typeof INITIATION_DIE | typeof OPPOSITION_DIE) {
   const randomD6Side = Math.floor(Math.random() * 6);
   return dieType[randomD6Side];
@@ -74,18 +93,18 @@ const INITIATION_BOOST_DIE = [
   DICE_VALUES.blank,
   DICE_VALUES.onePip,
   DICE_VALUES.onePip,
-  // DICE_VALUES.onePip,
-  // DICE_VALUES.twoPips,
   DICE_VALUES.crit,
 ]
+export type InitiationBoostDieValue = typeof INITIATION_BOOST_DIE[number];
+
 const OPPOSITION_BOOST_DIE = [
   DICE_VALUES.blank,
   DICE_VALUES.onePip,
   DICE_VALUES.onePip,
-  // DICE_VALUES.onePip,
-  // DICE_VALUES.twoPips,
   DICE_VALUES.crit,
 ];
+export type OppositionBoostDieValue = typeof OPPOSITION_BOOST_DIE[number];
+
 function rollD4(dieType: typeof INITIATION_BOOST_DIE | typeof OPPOSITION_BOOST_DIE) {
   const randomD4Side = Math.floor(Math.random() * 4);
   return dieType[randomD4Side];
@@ -296,83 +315,152 @@ export function DiceRoller() {
 
   return (
     <section>
-      <div>
-        <h3>Initiation Dice</h3>
+      <div className={styles.diceControls}>
         <div>
-          <button onClick={() => dispatch(ACTIONS.addInitiationDie)}>Add Initiation Die</button>
-          <button onClick={() => dispatch(ACTIONS.removeInitiationDie)}>Remove Initiation Die</button>
-          <div>
-            <label htmlFor={`${idPrefix}initiation-dice-count`}>Initiation Dice (d6)</label>
-            <input readOnly id={`${idPrefix}initiation-dice-count`} type="number" value={initiationD6Count} />
+          <div className={styles.diceCategoryTitle}>Initiation</div>
+          <div className={styles.diceControlsRow}>
+            <DiceControl
+              handleIncreaseClick={() => dispatch(ACTIONS.addInitiationDie)}
+              increaseLabel="Add Initiation Die"
+              handleDecreaseClick={() => dispatch(ACTIONS.removeInitiationDie)}
+              decreaseLabel="Remove Initiation Die"
+              count={initiationD6Count}
+              dice="d6"
+              diceType="initiation"
+            />
+
+            <DiceControl
+              handleIncreaseClick={() => dispatch(ACTIONS.boostInitiation)}
+              increaseLabel="Boost Initiation"
+              handleDecreaseClick={() => dispatch(ACTIONS.removeInitiationBoost)}
+              decreaseLabel="Remove Initiation Boost"
+              count={initiationBoostCount}
+              dice="boost"
+              diceType="initiation"
+            />
           </div>
         </div>
-
         <div>
-          <button onClick={() => dispatch(ACTIONS.boostInitiation)}>Boost Initiation</button>
-          <button onClick={() => dispatch(ACTIONS.removeInitiationBoost)}>Remove Initiation Boost</button>
-          <div>
-            <label htmlFor={`${idPrefix}initiation-boost-count`}>Initiation Boost (d4)</label>
-            <input readOnly id={`${idPrefix}initiation-boost-count`} type="number" value={initiationBoostCount} />
+          <div className={styles.diceCategoryTitle}>Opposition</div>
+          <div className={styles.diceControlsRow}>
+            <DiceControl
+              handleIncreaseClick={() => dispatch(ACTIONS.addOppositionDie)}
+              increaseLabel="Add Opposition Die"
+              handleDecreaseClick={() => dispatch(ACTIONS.removeOppositionDie)}
+              decreaseLabel="Remove Opposition Die"
+              count={oppositionD6Count}
+              dice="d6"
+              diceType="opposition"
+            />
+
+            <DiceControl
+              handleIncreaseClick={() => dispatch(ACTIONS.boostOpposition)}
+              increaseLabel="Boost Opposition"
+              handleDecreaseClick={() => dispatch(ACTIONS.removeOppositionBoost)}
+              decreaseLabel="Remove Opposition Boost"
+              count={oppositionBoostCount}
+              dice="boost"
+              diceType="opposition"
+            />
           </div>
         </div>
       </div>
 
-      <div>
-        <h3>Opposition Dice</h3>
-        <div>
-          <button onClick={() => dispatch(ACTIONS.addOppositionDie)}>Add Opposition Die</button>
-          <button onClick={() => dispatch(ACTIONS.removeOppositionDie)}>Remove Opposition Die</button>
-          <div>
-            <label htmlFor={`${idPrefix}opposition-dice-count`}>Opposition Dice (d6)</label>
-            <input readOnly id={`${idPrefix}opposition-dice-count`} type="number" value={oppositionD6Count} />
-          </div>
-        </div>
-
-        <div>
-          <button onClick={() => dispatch(ACTIONS.boostOpposition)}>Boost Opposition</button>
-          <button onClick={() => dispatch(ACTIONS.removeOppositionBoost)}>Remove Opposition Boost</button>
-          <div>
-            <label htmlFor={`${idPrefix}opposition-boost-count`}>Opposition Boost (d4)</label>
-            <input readOnly id={`${idPrefix}opposition-boost-count`} type="number" value={oppositionBoostCount} />
-          </div>
-        </div>
-
-      </div>
-
-      <div data-testid="dice-tray">
-        <h3>Dice Tray</h3>
-        <div>
+      <div data-testid="dice-tray" className={styles.diceTray}>
+        <div className={styles.diceTrayControls}>
           <button onClick={handleDiceRoll}>Roll Dice</button>
           <button onClick={handleDiceReset}>Reset</button>
         </div>
 
-        <fieldset data-testid="dice-tray-initiation-dice">
-          <label>Initiation</label>
-          {initiationDice.map(({ isRolling, type, value}, index) => (
-            <div
-              key={`${idPrefix}rolled-initiation-dice--${index}`}
-              data-testid={`${isRolling ? 'rolling' : 'rolled'}-initiation${type === 'boost' ? '-boost' : ''}-die`}
-            >
-              {type === 'boost' ? 'd4: ' : 'd6: '}
-              {isRolling ? 'Rolling...' : value}
-            </div>
-          ))}
-        </fieldset>
+        <div className={styles.diceTrayResults}>
+          <div>
+            {initiationDice.map(({ isRolling, type, value }, index) => (
+              <div
+                key={`${idPrefix}rolled-initiation-dice--${index}`}
+                data-testid={`${isRolling ? 'rolling' : 'rolled'}-initiation${type === 'boost' ? '-boost' : ''}-die`}
+                className={styles.diceTrayResult}
+              >
+                {type === 'boost' ? (
+                  <BoostDice
+                    type="initiation"
+                    value={value ?? 'blank'}
+                  />
+                ) : (
+                  <D6
+                    type="initiation"
+                    value={value ?? 'blank'}
+                  />
+                )}
+              </div>
+            ))}
+          </div>
 
-        <fieldset data-testid="dice-tray-opposition-dice">
-          <label>Opposition</label>
-          {oppositionDice.map(({ isRolling, type, value }, index) => (
-            <div
-              key={`${idPrefix}rolled-opposition-dice--${index}`}
-              data-testid={`${isRolling ? 'rolling' : 'rolled'}-opposition${type === 'boost' ? '-boost' : ''}-die`}
-            >
-              {type === 'boost' ? 'd4: ' : 'd6: '}
-              {isRolling ? 'Rolling...' : value}
-            </div>
-          ))}
-        </fieldset>
-
+          <div>
+            {oppositionDice.map(({ isRolling, type, value }, index) => (
+              <div
+                key={`${idPrefix}rolled-opposition-dice--${index}`}
+                data-testid={`${isRolling ? 'rolling' : 'rolled'}-opposition${type === 'boost' ? '-boost' : ''}-die`}
+                className={styles.diceTrayResult}
+              >
+                {type === 'boost' ? (
+                  <BoostDice
+                    type="opposition"
+                    value={value ?? 'blank'}
+                  />
+                ) : (
+                  <D6
+                    type="opposition"
+                    value={value ?? 'blank'}
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </section>
+  );
+}
+
+// ---- HELPER COMPONENTS ----
+
+function DiceControl({
+  handleIncreaseClick,
+  increaseLabel,
+  handleDecreaseClick,
+  decreaseLabel,
+  count,
+  dice,
+  diceType,
+}: {
+  handleIncreaseClick: () => void;
+  increaseLabel: string;
+  handleDecreaseClick: () => void;
+  decreaseLabel: string;
+  count: number;
+  dice: 'd6' | 'boost';
+  diceType: 'initiation' | 'opposition';
+}) {
+  return (
+    <div className={styles.diceContainer}>
+      <button
+        className={styles.diceControlButton}
+        onClick={handleIncreaseClick}
+        aria-label={increaseLabel}
+      >
+        {'▲'}
+      </button>
+      <div className={styles.diceControlDice} >
+        {dice === 'd6' ? <D6 type={diceType} value="blank" /> : <BoostDice type={diceType} value="blank" />}
+        <div>{count}</div>
+      </div>
+      <button
+        className={styles.diceControlButton}
+        onClick={handleDecreaseClick}
+        aria-label={decreaseLabel}
+      >
+        {'▼'}
+      </button>
+    </div>
   );
 }

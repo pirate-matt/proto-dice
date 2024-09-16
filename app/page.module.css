@@ -5,13 +5,11 @@
   min-height: 100vh;
 }
 
-.helloWorld {
-  font-size: 0.8rem;
-  max-width: var(--max-width);
-  width: 100%;
-  z-index: 2;
-  font-family: var(--font-mono);
+.header {
+  height: 50px;
+  margin-bottom: 1rem;
 }
+
 
 .progressMessages {
   text-align: left;
@@ -28,7 +26,7 @@ h2.styled {
     padding: 6rem;
   }
 
-  .helloWorld {
-    font-size: 1rem;
+  .header {
+    height: 200px;
   }
 }

@@ -2,18 +2,16 @@ import { describe, expect, test } from 'vitest'
 import { render, within } from '@testing-library/react'
 import Page from './page'
 
-// @FUTURE: replace me with useful tests
-describe('Hello World faux unit tests', () => {
-  test('Heading is defined (existing test)', () => {
+describe('Superficial page tests', () => {
+  test('Heading is defined', () => {
     const { container } = render(<Page />)
     const withinContainer = within(container);
-    expect(withinContainer.getByRole('heading', { name: /hello world/i })).toBeDefined();
+    expect(withinContainer.getByRole('heading', { level: 1 })).toBeDefined();
   });
 
-
-  test('Displays unit tests setup message (TDD)', () => {
+  test('Dice roller is rendered', () => {
     const { container } = render(<Page />)
     const withinContainer = within(container);
-    expect(withinContainer.findByText(/unit tests setup/i)).toBeDefined();
+    expect(withinContainer.findByText(/roll/i)).toBeDefined();
   });
 });
