@@ -22,7 +22,9 @@ TODO:s
 - [ ] Get feedback
 - [ ] Pick and add a license
 - [•] Improve visual design
-  - [ ] update dice-roller.test.tsx to look for new svg dice results
+  - [x] update dice-roller.test.tsx to look for new svg dice results
+  - [•] update post roll design to include "cancels" box or similar and everything else outside of it.
+  - [ ] think through what should happen after roll when dice numbers are altered... force reset? add "unrolled" dice box?
 - [ ] Investigate packaging & adding to Wix?
   - [ ] Setup auto test runner pre-deploy?
 - [ ] Investigate a Physics / 3D dice rolling solution

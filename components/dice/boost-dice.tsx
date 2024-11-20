@@ -3,12 +3,19 @@ import styles from './dice.module.css';
 export function BoostDice({
   type,
   value,
+  isRolling,
+  isCountControl = false,
 }: {
-  type: 'initiation' | 'opposition',
-  value: 'blank' | 'crit' | 'onePip'
+  type: 'initiation' | 'opposition';
+  value: 'blank' | 'crit' | 'onePip';
+  isRolling: boolean;
+  isCountControl?: boolean;
 }) {
-    {/* <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-    <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"> */}
+  const valueStr = value === 'blank' ? 'blank' : value === 'crit' ? 'crit' : 'one pip';
+  const diceDescription = isCountControl
+    ? `${type} boost die count control`
+    : `${type} boost die showing ${isRolling ? 'rolling animation' : valueStr}`;
+
   return (
     <svg
       width="100%"
@@ -20,8 +27,12 @@ export function BoostDice({
       xmlSpace="preserve"
       // xmlnsSerif="http://www.serif.com/"
       style={{fillRule: 'evenodd', clipRule: 'evenodd', strokeLinecap: 'round', strokeLinejoin: 'round', strokeMiterlimit: '1.5'}}
-      className={styles.diceShadow}
+      className={[
+        styles.diceShadow,
+        isRolling ? styles.rolling : ''
+      ].join(' ')}
     >
+      <title>{diceDescription}</title>
       <g className={[type === 'initiation' ? styles.initiationFill : styles.oppositionFill, 'd4'].join(' ')}>
         <path d="M30,33l45,-30l45,30l-45,150l-45,-150Z" style={{stroke: '#000', strokeWidth: '4.17px' }} />
         <path d="M75,3l45,30l-90,0l45,-30Z" style={{fillOpacity: '0.1', stroke: '#000', strokeWidth: '4.17px' }} />

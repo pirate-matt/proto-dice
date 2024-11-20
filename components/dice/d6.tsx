@@ -4,10 +4,19 @@ import styles from './dice.module.css';
 export function D6 ({
   type,
   value,
+  isRolling,
+  isCountControl = false,
 }: {
   type: 'initiation' | 'opposition';
   value: DiceValue;
+  isRolling: boolean;
+  isCountControl?: boolean;
 }) {
+  const valueStr = value === 'onePip' ? 'one pip' : value === 'twoPips' ? 'two pips' : value === 'crit' ? 'crit' : 'blank';
+  const diceDescription = isCountControl
+    ? `${type} die count control`
+    : `${type} die showing ${isRolling ? 'rolling animation' : valueStr}`;
+
   return (
     <svg
       width="100%"
@@ -18,8 +27,12 @@ export function D6 ({
       xmlnsXlink="http://www.w3.org/1999/xlink"
       xmlSpace="preserve"
       style={{fillRule: "evenodd", clipRule: "evenodd", strokeLinejoin: "round", strokeMiterlimit: 2}}
-      className={styles.diceShadow}
+      className={[
+        styles.diceShadow,
+        isRolling ? styles.rolling : ''
+      ].join(' ')}
     >
+      <title>{diceDescription}</title>
       <g
         id="d6"
         className={[type === 'initiation' ? styles.initiationFill : styles.oppositionFill, 'd6'].join(' ')}

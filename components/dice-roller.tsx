@@ -377,18 +377,19 @@ export function DiceRoller() {
             {initiationDice.map(({ isRolling, type, value }, index) => (
               <div
                 key={`${idPrefix}rolled-initiation-dice--${index}`}
-                data-testid={`${isRolling ? 'rolling' : 'rolled'}-initiation${type === 'boost' ? '-boost' : ''}-die`}
                 className={styles.diceTrayResult}
               >
                 {type === 'boost' ? (
                   <BoostDice
                     type="initiation"
                     value={value ?? 'blank'}
+                    isRolling={isRolling}
                   />
                 ) : (
                   <D6
                     type="initiation"
                     value={value ?? 'blank'}
+                    isRolling={isRolling}
                   />
                 )}
               </div>
@@ -406,11 +407,13 @@ export function DiceRoller() {
                   <BoostDice
                     type="opposition"
                     value={value ?? 'blank'}
+                    isRolling={isRolling}
                   />
                 ) : (
                   <D6
                     type="opposition"
                     value={value ?? 'blank'}
+                    isRolling={isRolling}
                   />
                 )}
               </div>
@@ -442,7 +445,7 @@ function DiceControl({
   diceType: 'initiation' | 'opposition';
 }) {
   return (
-    <div className={styles.diceContainer}>
+    <div role="group" className={styles.diceContainer}>
       <button
         className={styles.diceControlButton}
         onClick={handleIncreaseClick}
@@ -451,8 +454,20 @@ function DiceControl({
         {'▲'}
       </button>
       <div className={styles.diceControlDice} >
-        {dice === 'd6' ? <D6 type={diceType} value="blank" /> : <BoostDice type={diceType} value="blank" />}
-        <div>{count}</div>
+        {dice === 'd6' ? (
+          <D6 type={diceType} value="blank" isRolling={false} isCountControl={true} />
+        ) : (
+          <BoostDice type={diceType} value="blank" isRolling={false} isCountControl={true} />
+        )}
+        <div>
+          <input
+            readOnly
+            aria-live="polite"
+            aria-label={`${diceType} ${dice} dice count`}
+            type="number"
+            value={count}
+          />
+        </div>
       </div>
       <button
         className={styles.diceControlButton}

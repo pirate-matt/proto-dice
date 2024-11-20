@@ -46,6 +46,24 @@
   transform: translate(-50%, -50%);
 }
 
+.diceControlDice > div > input {
+  /* display: inline-block; */
+  background: none;
+  border: none;
+  text-align: center;
+  width: 100%;
+}
+.diceControlDice > div > input::-webkit-outer-spin-button,
+.diceControlDice > div > input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.diceControlDice > div > input {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
 /* Dice Tray */
 .diceTray {
   display: flex;

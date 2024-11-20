@@ -7,3 +7,14 @@
 .diceShadow {
   filter: drop-shadow(2px 2px 5px rgba(0, 0, 0, 0.5));
 }
+.rolling {
+  animation: roll 1s linear infinite;
+}
+@keyframes roll {
+  0% {
+    transform: rotateX(0deg) rotateY(0deg);
+  }
+  100% {
+    transform: rotateX(360deg) rotateY(360deg);
+  }
+}
